@@ -1,0 +1,94 @@
+services:
+  # ============================================================
+  # MariaDB database (necessário para imagem oficial do ERPNext)
+  # ============================================================
+  mariadb:
+    image: mariadb:10.11
+    container_name: erp-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: erp_pradodacosta
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Redis (cache e task queue)
+  # ============================================================
+  redis-cache:
+    image: redis:7-alpine
+    container_name: erp-redis-cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_cache_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ============================================================
+  # ERPNext + Frappe (imagem oficial worker)
+  # ============================================================
+  erpnext:
+    image: frappe/erpnext:latest
+    container_name: erp-erpnext
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_ROOT_PASSWORD: admin123
+      REDIS_CACHE: redis://redis-cache:6379
+      REDIS_QUEUE: redis://redis-cache:6379
+      REDIS_SOCKETIO: redis://redis-cache:6379
+    ports:
+      - "8000:8000"
+    volumes:
+      - erpnext_data:/data
+      - ./init-scripts:/docker-entrypoint-init.d
+    entrypoint: ["/bin/bash", "/docker-entrypoint-init.d/init_frappe.sh"]
+
+  # ============================================================
+  # ACBrLib - Serviços Fiscais Brasileiros
+  # ============================================================
+  acbr:
+    build:
+      context: ./acbr-container
+      dockerfile: Dockerfile
+    container_name: erp-acbr
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - acbr_certificados:/opt/acbr/certificados
+      - acbr_config:/opt/acbr/config
+      - acbr_logs:/opt/acbr/logs
+    environment:
+      ACBR_LOG_LEVEL: info
+      ACBR_CERTIFICADO_PATH: /opt/acbr/certificados
+
+volumes:
+  mariadb_data:
+  redis_cache_data:
+  erpnext_data:
+  acbr_certificados:
+  acbr_config:
+  acbr_logs:
+
+networks:
+  default:
+    name: erp-pradodacosta-network

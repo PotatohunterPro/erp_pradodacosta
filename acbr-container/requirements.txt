@@ -1,0 +1,28 @@
+# ERP Prado da Costa - Dependências Fiscais Brasileiras
+# ====================================================
+
+# Biblioteca oficial para documentos fiscais eletrônicos brasileiros
+erpbrasil.edoc>=2.5.0
+
+# Utilitários
+requests>=2.31.0
+python-barcode>=0.15.1
+
+# FastAPI + Servidor
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+
+# Certificado digital
+cryptography>=41.0.0
+signxml>=3.2.0
+
+# Geração de DANFE (PDF)
+reportlab>=4.0.0
+
+# QR Code NFC-e
+qrcode>=7.4.0
+Pillow>=10.0.0
+
+# Cálculos fiscais
+numpy>=1.24.0
