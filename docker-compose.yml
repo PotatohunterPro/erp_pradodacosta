@@ -61,6 +61,12 @@ services:
       - erpnext_data:/data
       - ./init-scripts:/docker-entrypoint-init.d
     entrypoint: ["/bin/bash", "/docker-entrypoint-init.d/init_frappe.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/method/frappe.ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   # ============================================================
   # ACBrLib - Serviços Fiscais Brasileiros
@@ -80,6 +86,33 @@ services:
     environment:
       ACBR_LOG_LEVEL: info
       ACBR_CERTIFICADO_PATH: /opt/acbr/certificados
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # PostgreSQL (Opcional - mantido para uso futuro)
+  # ============================================================
+  postgres:
+    image: postgres:15
+    container_name: erp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: erp_postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password_change
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mariadb_data:
@@ -88,6 +121,7 @@ volumes:
   acbr_certificados:
   acbr_config:
   acbr_logs:
+  postgres_data:
 
 networks:
   default:

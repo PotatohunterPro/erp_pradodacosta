@@ -19,3 +19,21 @@ node_modules/
 .backportrc.json
 # Aider AI Chat
 .aider*
+
+# Environment variables (contém dados sensíveis)
+.env
+.env.local
+.env.*.local
+
+# Certificados digitais
+certs/
+*.pfx
+*.p12
+
+# Logs
+logs/
+*.log
+
+# Backup
+backups/
+*.bak

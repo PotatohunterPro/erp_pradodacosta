@@ -36,7 +36,7 @@ def setup_custom_fields():
             {
                 "fieldname": "ncm",
                 "label": "NCM",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 8,
                 "insert_after": "item_code",
                 "description": "Nomenclatura Comum do Mercosul (8 dígitos)",
@@ -44,7 +44,7 @@ def setup_custom_fields():
             {
                 "fieldname": "cest",
                 "label": "CEST",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 7,
                 "insert_after": "ncm",
                 "description": "Código Especificador da Substituição Tributária",
@@ -52,7 +52,7 @@ def setup_custom_fields():
             {
                 "fieldname": "cfop_default",
                 "label": "CFOP Padrão",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 4,
                 "insert_after": "cest",
                 "description": "Código Fiscal de Operações e Prestações padrão para este item",
@@ -91,14 +91,14 @@ def setup_custom_fields():
             {
                 "fieldname": "cpf_cnpj",
                 "label": "CPF / CNPJ",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "insert_after": "customer_name",
                 "description": "CPF (11 dígitos) ou CNPJ (14 dígitos)",
             },
             {
                 "fieldname": "ie_rg",
                 "label": "IE / RG",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "insert_after": "cpf_cnpj",
                 "description": "Inscrição Estadual (IE) ou RG",
             },
@@ -113,7 +113,7 @@ def setup_custom_fields():
             {
                 "fieldname": "suframa",
                 "label": "SUFRAMA",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 9,
                 "insert_after": "contribuinte_icms",
                 "description": "Inscrição SUFRAMA (Zona Franca de Manaus)",
@@ -129,7 +129,7 @@ def setup_custom_fields():
             {
                 "fieldname": "cfop_nfe",
                 "label": "CFOP NF-e",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 4,
                 "insert_after": "nfe_data",
                 "description": "CFOP para esta nota fiscal",
@@ -137,7 +137,7 @@ def setup_custom_fields():
             {
                 "fieldname": "chave_acesso_nfe",
                 "label": "Chave de Acesso NF-e",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 44,
                 "read_only": 1,
                 "insert_after": "cfop_nfe",
@@ -145,7 +145,7 @@ def setup_custom_fields():
             {
                 "fieldname": "protocolo_nfe",
                 "label": "Protocolo NF-e",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 15,
                 "read_only": 1,
                 "insert_after": "chave_acesso_nfe",
@@ -189,14 +189,14 @@ def setup_custom_fields():
             {
                 "fieldname": "cpf_cnpj_consumidor",
                 "label": "CPF / CNPJ do Consumidor",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "insert_after": "nfe_data",
                 "description": "CPF ou CNPJ do consumidor final (opcional)",
             },
             {
                 "fieldname": "chave_acesso_nfce",
                 "label": "Chave de Acesso NFC-e",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 44,
                 "read_only": 1,
                 "insert_after": "cpf_cnpj_consumidor",
@@ -204,7 +204,7 @@ def setup_custom_fields():
             {
                 "fieldname": "protocolo_nfce",
                 "label": "Protocolo NFC-e",
-                "fieldtype": "Data",
+                "fieldtype": "Char",
                 "length": 15,
                 "read_only": 1,
                 "insert_after": "chave_acesso_nfce",
@@ -212,7 +212,8 @@ def setup_custom_fields():
             {
                 "fieldname": "qr_code_nfce",
                 "label": "QR Code NFC-e",
-                "fieldtype": "Data",
+                "fieldtype": "Code",
+                "options": "Text",
                 "read_only": 1,
                 "insert_after": "protocolo_nfce",
             },
