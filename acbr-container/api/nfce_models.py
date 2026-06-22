@@ -2,11 +2,19 @@
 Modelos Pydantic para NFC-e
 
 Define estrutura e validação de dados para geração de NFC-e
+Conformidade fiscal com leis brasileiras:
+- Lei Complementar 123/2006 (Simples Nacional)
+- Lei 10.637/2002 (PIS)
+- Lei 10.833/2003 (COFINS)
 """
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
 from decimal import Decimal
+from .icms_tabelas import (
+    validar_cst_icms, validar_cst_pis, validar_cst_cofins,
+    validar_regime_tributario, obter_aliquota_icms, RegimeTributario
+)
 
 
 class ProdutoNfce(BaseModel):
@@ -47,6 +55,30 @@ class ProdutoNfce(BaseModel):
         """Origem deve estar entre 0 e 8"""
         if not v.isdigit() or int(v) > 8:
             raise ValueError('Origem deve estar entre 0 e 8')
+        return v
+
+    @field_validator('cst_icms')
+    @classmethod
+    def validar_cst_icms_field(cls, v):
+        """Valida CST ICMS conforme legislação"""
+        if not validar_cst_icms(v):
+            raise ValueError(f'CST ICMS inválido: {v}. Veja tabela de CST ICMS válidos')
+        return v
+
+    @field_validator('cst_pis')
+    @classmethod
+    def validar_cst_pis_field(cls, v):
+        """Valida CST PIS conforme Lei 10.637/2002"""
+        if not validar_cst_pis(v):
+            raise ValueError(f'CST PIS inválido: {v}. Veja tabela de CST PIS válidos')
+        return v
+
+    @field_validator('cst_cofins')
+    @classmethod
+    def validar_cst_cofins_field(cls, v):
+        """Valida CST COFINS conforme Lei 10.833/2003"""
+        if not validar_cst_cofins(v):
+            raise ValueError(f'CST COFINS inválido: {v}. Veja tabela de CST COFINS válidos')
         return v
 
     def valor_total(self) -> Decimal:
@@ -95,6 +127,10 @@ class EmitenteNfce(BaseModel):
     cep: str = Field(..., description="CEP (8 dígitos)")
     telefone: Optional[str] = Field(None, max_length=20)
     email: Optional[str] = Field(None, max_length=120)
+    regime_tributario: str = Field(
+        default="SN",
+        description="Regime tributário: SN (Simples Nacional), LR (Lucro Real), LP (Lucro Presumido)"
+    )
 
     @field_validator('cnpj')
     @classmethod
@@ -124,6 +160,14 @@ class EmitenteNfce(BaseModel):
         if v.upper() not in ufs_validas:
             raise ValueError(f'UF inválida: {v}')
         return v.upper()
+
+    @field_validator('regime_tributario')
+    @classmethod
+    def validar_regime(cls, v):
+        """Valida regime tributário conforme Lei Complementar 123/2006"""
+        if not validar_regime_tributario(v):
+            raise ValueError(f'Regime tributário inválido: {v}. Valores válidos: SN, LR, LP')
+        return v
 
 
 class NfcePayload(BaseModel):
@@ -201,3 +245,15 @@ class NfcePayload(BaseModel):
             cofins = valor_produto * Decimal(str(p.aliquota_cofins / 100))
             total += cofins
         return total
+
+    def obter_aliquota_icms_por_ncm(self, ncm: str) -> Decimal:
+        """
+        Obtém alíquota ICMS dinâmica para um NCM no estado do emitente
+
+        Conforme RICMS-ST de cada estado
+        """
+        return obter_aliquota_icms(ncm, self.emitente.uf)
+
+    def regime_tributario(self) -> str:
+        """Retorna regime tributário do emitente"""
+        return self.emitente.regime_tributario
