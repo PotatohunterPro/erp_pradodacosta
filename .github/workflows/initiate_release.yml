@@ -7,9 +7,6 @@ permissions:
   contents: read
 
 on:
-  schedule:
-    # 9:30 UTC => 3 PM IST Tuesday
-    - cron: "30 9 * * 2"
   workflow_dispatch:
 
 jobs:
