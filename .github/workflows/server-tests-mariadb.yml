@@ -1,8 +1,6 @@
 name: Server (Mariadb)
 
 on:
-  repository_dispatch:
-    types: [frappe-framework-change]
   pull_request:
     paths-ignore:
       - '**.js'
@@ -13,9 +11,6 @@ on:
       - 'crowdin.yml'
       - '.coderabbit.yml'
       - '.mergify.yml'
-  schedule:
-    # Run everday at midnight UTC / 5:30 IST
-    - cron: "0 0 * * *"
   workflow_dispatch:
     inputs:
       user:
